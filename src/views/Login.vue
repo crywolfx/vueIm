@@ -42,7 +42,7 @@ export default {
                 userName: this.userName,
                 password: this.password
               }
-              this.axios.post('http://192.168.1.111:3000/user/login', userInfo)
+              this.axios.post('http://192.168.1.116:3000/user/login', userInfo)
                   .then(res => {
                       if (res.data.success) {
 

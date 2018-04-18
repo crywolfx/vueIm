@@ -4,6 +4,7 @@ const mongoose = require("mongoose");  // mongoose
 // socket.io
 const server = require('http').createServer(app);
 
+//建立public文件夹，将HTML文件放入其中，允许访问
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -12,13 +13,14 @@ app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Credentials', false);
   next();
 });
+app.use(express.static('uploads'));
 
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const session = require('cookie-session')
 
 
-mongoose.connect('mongodb://192.168.1.111/im')  //连接数据库
+mongoose.connect('mongodb://192.168.1.116/im')  //连接数据库
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, '连接错误：'))
 db.once('open', (callback) => {

@@ -105,7 +105,7 @@ export default {
         },
         checkName() {
             this.axios
-                .post("http://192.168.1.111:3000/user/checkName", {
+                .post("http://192.168.1.116:3000/user/checkName", {
                     userName: this.userName
                 })
                 .then(res => {
@@ -146,7 +146,7 @@ export default {
                         nickName: this.name,
                         age: this.age
                     };
-                    this.axios.post('http://192.168.1.111:3000/user/reg', userInfo)
+                    this.axios.post('http://192.168.1.116:3000/user/reg', userInfo)
                     .then(res => {
                         if (res.data.success) {
                             this.$router.push({

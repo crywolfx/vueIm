@@ -27,6 +27,9 @@ const UserSchema = new mongoose.Schema({
         type: Number,
         require: true
     },
+    src: {
+        type: String
+    },
     meta: {
         createAt: {
             type: Date,

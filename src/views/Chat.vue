@@ -8,26 +8,37 @@
   </div>
 </template>
 <script>
-
 export default {
   name: "Chat",
   data() {
     return {
-        count: 0
+        count: 0,
     };
   },
   components: {
-    
+
+  },
+  beforeRouteEnter: (to, from, next) => {
+    let nameArr = to.name.split('');
+    nameArr[0] = nameArr[0].toUpperCase();
+    let name = nameArr.join('');
+    next( vm=> {
+      vm.$store.commit('SET_ACTIVE_TAB', name);
+      localStorage.setItem('activeTab', name);
+    })
   },
   mounted() {
     let _this = this;
       this.socket.on('receive msg', data => {
-            console.log(data);
+            // console.log(data);
             _this.count++;
-            console.log(_this.count);
+            // console.log(_this.count);
        })
   },
   methods: {
+    showAdd() {
+      this.isShowAdd = !this.isShowAdd;
+    },
     goTalk(roomId) {
       this.$router.push({
         name:'chating',
@@ -45,7 +56,6 @@ export default {
   width: 100%;
   background: #ebebeb;
 }
-
 .chat-list{
   padding-top: 1.2rem;
   .chat-room{

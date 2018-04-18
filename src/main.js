@@ -9,7 +9,7 @@ import io from 'socket.io-client'
 
 Vue.config.productionTip = false
 Vue.prototype.axios = axios
-const socket = io('http://192.168.1.111:3000');
+const socket = io('http://192.168.1.116:3000');
 
 Vue.prototype.socket = socket;
 new Vue({

@@ -6,6 +6,7 @@ import Register from './views/Register.vue'
 import Chat from './views/Chat.vue'
 import Me from './views/Me.vue'
 import Chating from './views/Chating.vue'
+import Home from './views/Home.vue'
 
 Vue.use(Router)
 
@@ -13,11 +14,22 @@ const router =  new Router({
   routes: [
     {
       path: '/',
-      name: 'chat',
-      component: Chat,
+      name: 'home',
+      component: Home,
       meta: {
         requireAuth: true, 
       },
+      children: [
+        {
+          path: 'chat',
+          name: 'chat',
+          component: Chat
+        },
+        {
+          path: 'me',
+          name: 'me',
+          component: Me
+        }]
     },
     {
       path: '/login',

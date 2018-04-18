@@ -9,7 +9,7 @@
               </div>
               <div v-else-if="obj.type == 2">
                   <div class="message-other">
-                      <div class="message-other-img message-other-line"><img src="../assets/image/avatar-backup.jpg" alt="avatar"></div>
+                      <div class="message-other-img message-other-line"><img :src="obj.data.src" alt="avatar"></div>
                       <div class="message-content-box message-other-line">
                           <div class="message-other-username"><span>{{obj.data.nickName}}</span><span>{{obj.data.time}}</span></div>
                           <div class="message-other-msg text-wrap">{{obj.data.msg}}</div>
@@ -18,7 +18,7 @@
               </div>
               <div v-else>
                   <div class="message-other">
-                      <div class="message-other-img message-other-line2"><img src="../assets/image/avatar-backup.jpg" alt="avatar"></div>
+                      <div class="message-other-img message-other-line2"><img :src="obj.data.src" alt="avatar"></div>
                       <div class="message-content-box2 message-other-line2">
                           <div class="message-other-username message-other-username2"><span>{{obj.data.nickName}}</span><span>{{obj.data.time}}</span></div>
                           <div class="message-other-msg message-other-msg2 text-wrap">{{obj.data.msg}}
@@ -44,7 +44,7 @@ export default {
   data() {
       return {
           msgContent:'',
-          haveMsg: false,
+          haveMsg: false,   // 是否发送成功
           roomId:'default_1',
           userListLen:'',
           messageList:[],
@@ -140,7 +140,7 @@ export default {
                       nickName: this.userAroom.nickName,
                       roomId: this.userAroom.roomId,
                       msg: this.msgContent,
-                      avatar: '',
+                      src: this.userInfo.src,
                       time: time
                }
               this.socket.emit('send msg', msgData);
@@ -203,6 +203,11 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.chat-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
 .chating {
     position: absolute;
     height: 100%;
