@@ -1,4 +1,5 @@
 <template>
+<transition name="fade">
   <div class="me">
       <div class="user-image">
           <img @click="isUpload=true" class="user-avatar" :src="userInfo.src ? userInfo.src : ('../assets/image/avatar.jpg')" alt="">
@@ -30,90 +31,140 @@
         </div>
       </div>
       <div class="logout" @click="logout()">退出登录</div>
-      <div class="image-upload" v-if="isUpload">
+      <transition name="bounce">
+       <div class="image-upload" v-if="isUpload">
         <div class="image-upload-content">
           <div class="image-upload-ctrl">
             <div class="image-ctrl-left" @click="isUpload=false"></div>
             <div class="image-ctrl-right" @click="imageUpload"></div>
           </div>
-          <input class="image-upload-input" type="file" accept="image/*" @change="getFile">
+          <div class="image-upload-input-box">
+             点击上传
+            <input class="image-upload-input" type="file" accept="image/*" @change="getFile">
+          </div>
+		  <div class="image-upload-preview" v-if="previewUrl">
+			  <div class="image-upload-imgContent" :style="{backgroundImage:`url(${previewUrl})`}"></div>
+		  </div>
         </div>
       </div>
+      </transition>
   </div>
+</transition>
 </template>
 <script>
 export default {
-  name:'me',
-  data() {
-    return {
-      isUpload: false,
-      imageFiles: null 
-    }
-  },
-  components: {
-  },
-  beforeRouteEnter: (to, from, next) => {
-      let nameArr = to.name.split('');
-      nameArr[0] = nameArr[0].toUpperCase();
-      let name = nameArr.join('');
-      next(vm => {
-          vm.$store.commit('SET_ACTIVE_TAB', name);
-          localStorage.setItem('activeTab', name);
-      })
-  },
-  computed: {
-    userInfo() {
-      return this.$store.state.userInfo
-    }
-  },
-  methods: {
-    getFile(e) {
-      this.imageFiles=e.target.files[0];
+    name: 'me',
+    data() {
+        return {
+            isUpload: false,
+			imageFiles: null,
+			previewUrl: '',
+		}
     },
-    imageUpload() {
-      let formData = new FormData();
-          formData.append('userName', this.userInfo.userName);
-          formData.append('file', this.imageFiles)
-      this.axios.post('http://192.168.1.116:3000/user/upload/user',formData)
-        .then(res => {
-           if(res.data.success){
-             let newUserInfo = this.userInfo;
-             newUserInfo.src = res.data.data;
-             this.$store.commit("SET_USER_INFO",newUserInfo);
-             localStorage.setItem('userInfo', JSON.stringify(newUserInfo));
-             this.isUpload = false;
-             this.$store.commit('SET_TOAST',{
-                isShow:true,
-                content:'更换头像成功',
-                duration:1000,
-              })
-           }else {
-              this.$store.commit('SET_TOAST',{
-                isShow:true,
-                content:'更换头像失败',
-                duration:1000,
-              })
-           }
+    components: {},
+    beforeRouteEnter: (to, from, next) => {
+        let nameArr = to.name.split('');
+        nameArr[0] = nameArr[0].toUpperCase();
+        let name = nameArr.join('');
+        next(vm => {
+            vm.$store.commit('SET_ACTIVE_TAB', name);
+            localStorage.setItem('activeTab', name);
         })
     },
-    logout() {
-          localStorage.clear();
-          this.$store.commit("SET_LOGIN_STATUS",false);
-          this.$store.commit("SET_USER_INFO",{});
-          this.$store.commit("SET_ACTIVE_TAB",'Chat');
-					this.$store.commit('SET_TOAST',{
-						isShow:true,
-						content:'登出成功',
-						duration:1000,
-          });
-          this.$router.push({
-            name:'login'
-          })
+    computed: {
+        userInfo() {
+            return this.$store.state.userInfo
+        }
+    },
+    methods: {
+        getFile(e) {
+            this.imageFiles = e.target.files[0];
+            this.previewUrl= this.getObjectURL(this.imageFiles);
+        },
+        imageUpload() {
+            let formData = new FormData();
+            formData.append('userName', this.userInfo.userName);
+            formData.append('file', this.imageFiles)
+            this.axios.post('http://192.168.1.116:3000/user/upload/user', formData)
+                .then(res => {
+                    if (res.data.success) {
+                        let newUserInfo = this.userInfo;
+                        newUserInfo.src = res.data.data;
+                        this.$store.commit("SET_USER_INFO", newUserInfo);
+                        localStorage.setItem('userInfo', JSON.stringify(newUserInfo));
+                        this.isUpload = false;
+                        this.$store.commit('SET_TOAST', {
+                            isShow: true,
+                            content: '更换头像成功',
+                            duration: 1000,
+                        })
+                    } else {
+                        this.$store.commit('SET_TOAST', {
+                            isShow: true,
+                            content: '更换头像失败',
+                            duration: 1000,
+                        })
+                    }
+                })
+        },
+        logout() {
+            localStorage.clear();
+            this.$store.commit("SET_LOGIN_STATUS", false);
+            this.$store.commit("SET_USER_INFO", {});
+            this.$store.commit("SET_ACTIVE_TAB", 'Chat');
+            this.$store.commit('SET_TOAST', {
+                isShow: true,
+                content: '登出成功',
+                duration: 1000,
+            });
+            this.$router.push({
+                name: 'login'
+            })
+        },
+        getObjectURL(file) {
+            var url = null;
+            if (window.createObjectURL != undefined) { // basic
+                url = window.createObjectURL(file);
+            } else if (window.URL != undefined) { // mozilla(firefox)
+                url = window.URL.createObjectURL(file);
+            } else if (window.webkitURL != undefined) { // webkit or chrome
+                url = window.webkitURL.createObjectURL(file);
+            }
+            return url;
+        },
     }
-  }
 }
 </script>
 <style lang="less" scoped>
+.fade-enter-active {
+  transition: all .2s;
+}
+.fade-leave-active {
+  transition: all .2s;
+}
+.fade-enter, .fade-leave-active {
+  transform: translateX(100%);
+  opacity: 1;
+}
+
+.bounce-enter-active {
+  animation: bounce-in .5s;
+}
+.bounce-leave-active {
+  animation: bounce-in .5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .me {
     box-sizing: border-box;
     padding-top: 1.2rem;
@@ -197,7 +248,11 @@ export default {
     width: 100%;
     box-sizing: border-box;
     padding: 0 .2rem;
-    background: #36ADD1;
+	background: #C2C2C2;
+	top: 0;
+	left: 0;
+	position: absolute;
+	z-index: 2;
     div {
       height: 1rem;
       width: 1rem;
@@ -213,12 +268,42 @@ export default {
       background-size: auto 70%;
     }
   }
+  .image-upload-input-box {
+    width: 100%;
+    height: 1rem;
+    background: #B6CDFA;
+    color: #fff;
+    text-align: center;
+    line-height: 1rem;
+    font-size: .4rem;
+	position: absolute;
+	z-index: 2;
+	top: 1rem;
+  }
   .image-upload-input{
     display: block;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
     position: absolute;
-    top: 1.6rem;
-    left: 50%;
-    transform: translateX(-50%)
+    top: 0;
+	left: 0;
+	z-index: 1;
+  }
+  .image-upload-preview {
+	  top: 0;
+	  position: absolute;
+	  height: 100%;
+	  box-sizing: border-box;
+	  padding: 2.2rem .2rem .2rem .2rem;
+	  width: 100%;
+	  .image-upload-imgContent {
+		  height: 100%;
+		  width: 100%;
+		  background-size: contain;
+		  background-repeat: no-repeat;
+		  background-position: 50% 50%;
+	  }
   }
 }
 </style>

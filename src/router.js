@@ -6,6 +6,7 @@ import Register from './views/Register.vue'
 import Chat from './views/Chat.vue'
 import Me from './views/Me.vue'
 import Chating from './views/Chating.vue'
+import Contcats from './views/Contcats.vue'
 import Home from './views/Home.vue'
 
 Vue.use(Router)
@@ -21,14 +22,36 @@ const router =  new Router({
       },
       children: [
         {
+          path: '',
+          name: 'chat',
+          component: Chat,
+          meta: {
+            requireAuth: true, 
+          },
+        },
+        {
           path: 'chat',
           name: 'chat',
-          component: Chat
+          component: Chat,
+          meta: {
+            requireAuth: true, 
+          },
         },
         {
           path: 'me',
           name: 'me',
-          component: Me
+          component: Me,
+          meta: {
+            requireAuth: true, 
+          },
+        },
+        {
+          path: 'contcats',
+          name: 'contcats',
+          component: Contcats,
+          meta: {
+            requireAuth: true, 
+          },
         }]
     },
     {
@@ -42,17 +65,12 @@ const router =  new Router({
       component: Register
     },
     {
-      path: '/me',
-      name: 'me',
-      component: Me,
-      meta: {
-        requireAuth: true, 
-      },
-    },
-    {
       path: '/chating/:roomid',
       name: 'chating',
       component: Chating,
+      meta: {
+        requireAuth: true, 
+      },
     }
   ]
 })

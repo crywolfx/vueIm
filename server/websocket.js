@@ -1,13 +1,20 @@
 function websocket(server) {
     let io = require('socket.io')(server);
     // io.origins(['http://localhost:8080']);
-
+    const Message = require('./schemas/message')
     let users = {}
 
     io.on('connection', function(socket) {
         socket.on('send msg', data => {
             let message = data;
-            io.to(message.roomId).emit('receive msg', message)
+            io.to(message.roomId).emit('receive msg', message);
+            let MessObj = new Message(message)
+                MessObj.save(function (err, doc) {
+                    if (err) {
+                    console.log(err)
+                    }
+                    console.log(doc)
+                })
         })
 
         socket.on('join-room', data => {

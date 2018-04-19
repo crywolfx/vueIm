@@ -1,7 +1,7 @@
 <template>
   <div class="home">
       <vHeader class="home-header" msg="IM" @add="showAdd"/>
-      <vAdd class="home-add" v-if="isShowAdd" :list=this.list /> 
+      <vAdd class="home-add" v-if="isShowAdd" :list="list" /> 
        <router-view/>
       <div class="mask" v-if="isShowAdd" @click="isShowAdd = false"></div>
       <vFooter />

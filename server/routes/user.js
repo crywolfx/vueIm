@@ -91,15 +91,22 @@ router.post('/login', function(req, res) {
 });
 
 
-// 图片上传
+// 图片上传  
 let storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, './uploads/user')
+        if(req.body.msgType == 'msg'){
+            cb(null, './uploads/msg')
+        }else {
+            cb(null, './uploads/user')
+        }
     },
     filename: function(req, file, cb) {
         if (req.body && req.body.userName) {
-            let userName = req.body.userName;
-            cb(null, userName + '-' + file.originalname);
+            if(req.body.msgType == 'msg') {
+                cb(null, req.body.userName + '-' + Date.now() + '-' + file.originalname);
+            }else{
+                cb(null, req.body.userName + '-' + file.originalname);
+            }
         }else {
             cb(null, Date.now() + '-' + file.originalname);
         }
@@ -110,6 +117,7 @@ let upload = multer({
     storage: storage
 }); //定义图片上传的临时目录
 
+// 头像
 router.post('/upload/user', upload.single('file'), function(req, res, next) {
     let url = 'http://' + req.headers.host + '/user/' + req.file.filename;
     let userName = req.body.userName;
@@ -130,6 +138,16 @@ router.post('/upload/user', upload.single('file'), function(req, res, next) {
         } else {
             console.log("更新成功")
         }
+    });
+    res.end();
+});
+
+// 消息图片
+router.post('/upload/msg', upload.single('file'), function(req, res, next) {
+    let url = 'http://' + req.headers.host + '/msg/' + req.file.filename;
+    res.json({
+        success: true,
+        data: url,
     });
     res.end();
 });

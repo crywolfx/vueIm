@@ -29,6 +29,7 @@ db.once('open', (callback) => {
 
 // 路由
 const user = require('./routes/user');
+const message = require('./routes/message');
 
 
 //服务器提交的数据json化
@@ -48,6 +49,7 @@ app.use('/user',user);
 // socket
 require('./websocket.js')(server);
 
+app.use('/message',message);
 
 app.get('/', function (req, res) {
    res.send('Hello World');
