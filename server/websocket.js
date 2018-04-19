@@ -13,7 +13,7 @@ function websocket(server) {
                     if (err) {
                     console.log(err)
                     }
-                    console.log(doc)
+                    // console.log(doc)
                 })
         })
 

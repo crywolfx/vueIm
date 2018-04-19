@@ -3,7 +3,13 @@
   <div class="chat">
     <div class="chat-list">
       <div v-for="(value,index) in roomId">
-        <div class="chat-room" @click="goTalk(value)">{{roomName[index]}}<span class="chat-room-ctrl" @click.stop="roomShowFunc(value)"></span>
+        <div class="chat-room" @click="goTalk(value)">
+			<div class="chat-room-icon"></div>
+			<div class="chat-room-info">
+				<div class="chat-room-name">{{roomName[index]}}</div>
+				<div class="chat-room-message">{{roomMsg[value] && roomMsg[value].count ? '[' + roomMsg[value].count + ']条' : ''}}{{roomMsg && roomMsg[value] && roomMsg[value].msg ? roomMsg[value].msg : 'ddd'}}</div>
+			</div>
+			<span class="chat-room-ctrl" @click.stop="roomShowFunc(value)"></span>
         <transition name="bounce">
           <div class="chat-room-ctrl-content" v-if="roomShow == value+'true' ">
             <div class="chat-room-clear" @click.stop="clearMsg(value)">删除消息记录</div>
@@ -25,7 +31,8 @@ export default {
         roomId:['default_1','default_2','default_3'],
         roomName: ['官方聊天室1','官方聊天室2','官方聊天室3'],
         roomShow: '',
-        flag: false
+        flag: false,
+        roomMsg:{},
     };
   },
   components: {
@@ -40,12 +47,21 @@ export default {
       localStorage.setItem('activeTab', name);
     })
   },
+  watch:{
+	  roomMsg(value) {
+		console.log(value);
+	  }
+  },
   mounted() {
-    let _this = this;
       this.socket.on('receive msg', data => {
-            // console.log(data);
-            _this.count++;
-            // console.log(_this.count);
+			let msg = data.img ? '[图片]' : data.msg;
+			if (!this.roomMsg[data.roomId]) {
+				this.roomMsg[data.roomId] = {}
+				this.roomMsg[data.roomId].count = 0;
+			}
+			this.roomMsg[data.roomId].count++;
+			this.roomMsg[data.roomId].msg = msg;
+			this.roomMsg[data.roomId].nickName = data.nickName;
        })
   },
   methods: {
@@ -106,12 +122,33 @@ export default {
   padding-top: 1.2rem;
   .chat-room{
     box-sizing: border-box;
-    height: 1.5rem;
+    height: 1.6rem;
     background: #FCFCFC;
-    line-height: 1.5rem;
-    padding: 0 .4rem;
+    padding: 0 .2rem;
     border-bottom: 1px solid #DEDEDE;
     position: relative;
+  }
+  .chat-room-icon {
+	  float: left;
+	  height: 1.6rem;
+	  box-sizing: border-box;
+	  width: 1.2rem;
+	  padding: .2rem 0;
+  }
+  .chat-room-info {
+	  float: left;
+	  overflow: hidden;
+  }
+  .chat-room-name {
+	  height: .7rem;
+	  margin-left: .2rem;
+	  line-height: .7rem;
+	  font-size: .4rem;
+  }
+  .chat-room-message {
+	  margin-left: .2rem;
+	  height: .9rem;
+	  line-height: .9rem;
   }
 }
 .chat-room-ctrl {

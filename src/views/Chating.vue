@@ -20,7 +20,7 @@
                   </div>
               </div>
               <div v-else>
-                  <div class="message-other" v-if="obj.data.selfImg || obj.data.msg">
+                  <div class="message-other">
                       <div class="message-other-img message-other-line2"><img :src="obj.data.src" alt="avatar"></div>
                       <div class="message-content-box2 message-other-line2">
                           <div class="message-other-username message-other-username2"><span>{{obj.data.nickName}}</span><span>{{obj.data.time}}</span></div>
@@ -44,8 +44,8 @@
       <transition name="slide-fade">
       <div class="leave-room" v-if="isLeave">
           <span></span>
-          <div @click="$router.go(-1)">返回并接受新消息</div>
-          <div @click="doBack">返回不接受新消息</div>
+          <div @click="$router.go(-1)">返回并在主页接收消息</div>
+          <div @click="doBack">离开房间</div>
       </div>
       </transition>
        <transition name="slide-fade">
@@ -88,9 +88,7 @@ export default {
     },
     created() {
         this.roomId = this.$router.history.current.params.roomid;
-        // if(localStorage.getItem(`msg_${this.roomId}`)){
-        //     this.messageList = JSON.parse(localStorage.getItem(`msg_${this.roomId}`));
-        // }
+        this.getRoomMsg();
     },
     mounted() {
         this.userAroom = {
@@ -115,6 +113,44 @@ export default {
         }
     },
     methods: {
+        getRoomMsg() {
+            this.axios.post('http://192.168.1.116:3000/message/message',{roomId:this.roomId})
+                .then(res => {
+                    if(res.data.success) {
+                        let messageList = res.data.data;
+                        let newMessageList = [];
+                        messageList.map(value => {
+                            let obj = {};
+                            if(value.userName == this.userInfo.userName){
+                                value.selfImg = value.img;
+                                obj = {
+                                    type:3,
+                                    data:value,
+                                    haveRc: true
+                                }
+                            }else {
+                                obj = {
+                                    type:2,
+                                    data:value
+                                }
+                            }
+                            newMessageList.push(obj);
+                        })
+                        this.messageList = newMessageList;
+                        this.$store.commit('SET_TOAST', {
+                            isShow: true,
+                            content: '获取最近80条消息',
+                            duration: 1000,
+                        })
+                    }else {
+                       this.$store.commit('SET_TOAST', {
+                            isShow: true,
+                            content: '获取消息失败',
+                            duration: 1000,
+                        }) 
+                    }
+                })
+        },
         getFile(e) { // 获取图片
             let imageFiles = e.target.files[0];
             this.sendImg(imageFiles);
@@ -124,11 +160,6 @@ export default {
             this.$nextTick(() => {
                 this.setScroll();
             })
-            let messageTemp = this.messageList; // 数据备份
-            if (messageTemp.length > 100) { // 大于100条 删除
-                messageTemp.shift();
-            }
-            // localStorage.setItem(`msg_${this.roomId}`, JSON.stringify(messageTemp));
         },
         getHeader(data) {
             this.oHeaderBox = data;
@@ -155,7 +186,7 @@ export default {
                     if (value.type == 3) {
                         // value 是自己发送的, data是返回的
                         if (this.isObjectValueEqual(value.data, data) || value.data.baseMark == data.baseMark) {
-                            value.data.selfImg = data.img;
+                            value.data.selfImg = data.img;  // 返回改为网络地址
                             value.haveRc = true;
                         }
                     }
@@ -229,9 +260,9 @@ export default {
             }
             if(type !== 2){   // type2 为上传图片的地址信息
                 let msg = {
-                type: 3,
-                data: msgData,
-                haveRc: false,
+                    type: 3,
+                    data: msgData,
+                    haveRc: false,
                 }
                 this.msgContent = '';
                 this.pushMsg(msg);
