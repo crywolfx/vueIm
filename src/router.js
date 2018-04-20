@@ -8,6 +8,8 @@ import Me from './views/Me.vue'
 import Chating from './views/Chating.vue'
 import Contcats from './views/Contcats.vue'
 import Home from './views/Home.vue'
+import CreateRoom from './views/CreateRoom.vue' 
+import Find from './views/Find.vue' 
 
 Vue.use(Router)
 
@@ -54,6 +56,22 @@ const router =  new Router({
           },
         }]
     },
+    {
+      path: '/createroom',
+      name: 'createroom',
+      component: CreateRoom,
+      meta: {
+        requireAuth: true, 
+      },
+    },  
+    {
+      path: '/find',
+      name: 'find',
+      component: Find,
+      meta: {
+        requireAuth: true, 
+      },
+    },   
     {
       path: '/login',
       name: 'login',

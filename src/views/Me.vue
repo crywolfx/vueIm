@@ -2,7 +2,7 @@
 <transition name="fade">
   <div class="me">
       <div class="user-image">
-          <img @click="isUpload=true" class="user-avatar" :src="userInfo.src ? userInfo.src : ('../assets/image/avatar.jpg')" alt="">
+          <img @click="isUpload=true" class="user-avatar" :src="userInfo.src ? userInfo.src : defaultImg" alt="">
       </div>
       <div class="userInfo-box">
         <div class="nickName userInfo-item">
@@ -57,9 +57,10 @@ export default {
     data() {
         return {
             isUpload: false,
-			imageFiles: null,
-			previewUrl: '',
-		}
+			      imageFiles: null,
+            previewUrl: '',
+            defaultImg: require('../assets/image/avatar.jpg')
+		    }
     },
     components: {},
     beforeRouteEnter: (to, from, next) => {

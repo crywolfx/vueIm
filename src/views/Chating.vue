@@ -1,7 +1,7 @@
 <template>
 <transition name="fade">
   <div class="chating">
-      <vHeader class="chat-header" :msg="`IM(当前在线${userListLen}人)`" :image="leftImage" @leftFunc="isLeave = true" @getHeader="getHeader"/>
+      <vHeader class="chat-header" :msg="`${roomInfo.roomName ? roomInfo.roomName : 'IM'}(当前在线${userListLen}人)`" :image="leftImage" @leftFunc="isLeave = true" @getHeader="getHeader"/>
       <div class="message-box-outer" ref="messageBoxOut">
          <div class="message-box" ref="messageBox">
           <div v-for="obj in messageList">
@@ -10,7 +10,7 @@
               </div>
               <div v-else-if="obj.type == 2">
                   <div class="message-other">
-                      <div class="message-other-img message-other-line"><img :src="obj.data.src" alt="avatar"></div>
+                      <div class="message-other-img message-other-line"><img :src="obj.data.src ? obj.data.src : defaultImg" alt="avatar"></div>
                       <div class="message-content-box message-other-line">
                           <div class="message-other-username"><span>{{obj.data.nickName}}</span><span>{{obj.data.time}}</span></div>
                           <div class="message-other-msg text-wrap">{{obj.data.msg ? obj.data.msg : ""}}
@@ -21,7 +21,7 @@
               </div>
               <div v-else>
                   <div class="message-other">
-                      <div class="message-other-img message-other-line2"><img :src="obj.data.src" alt="avatar"></div>
+                      <div class="message-other-img message-other-line2"><img :src="obj.data.src ? obj.data.src : defaultImg" alt="avatar"></div>
                       <div class="message-content-box2 message-other-line2">
                           <div class="message-other-username message-other-username2"><span>{{obj.data.nickName}}</span><span>{{obj.data.time}}</span></div>
                           <div class="message-other-msg message-other-msg2 text-wrap">{{obj.data.msg ? obj.data.msg : ""}}
@@ -68,7 +68,9 @@ export default {
             leftImage: require('@/assets/image/back.svg'),
             userAroom: {},
             input: /^[\s]*$/,
-            isLeave: false
+            isLeave: false,
+            roomInfo: {},
+            defaultImg: require('../assets/image/avatar.jpg')
         }
     },
     components: {
@@ -82,13 +84,11 @@ export default {
                 this.haveMsg = false;
             }
         },
-        messageList(val ){
-            console.log(val);
-        }
     },
     created() {
         this.roomId = this.$router.history.current.params.roomid;
         this.getRoomMsg();
+        this.getRoomInfo();
     },
     mounted() {
         this.userAroom = {
@@ -110,9 +110,23 @@ export default {
     computed: {
         userInfo() {
             return this.$store.state.userInfo;
+        },
+        homeMsg() {
+            return this.$store.state.homeMsg;
         }
     },
     methods: {
+        getRoomInfo() {
+            this.axios.post('http://192.168.1.116:3000/room/roomInfo',{roomId:this.roomId})
+                .then(res => {
+                    if(res.data.success){
+                        this.roomInfo = res.data.roomInfo;
+                        this.$store.commit('STE_CHAT_LIST',this.roomInfo);                  
+                    }else {
+                        console.error("获取房间信息失败");
+                    }
+            })
+        },
         getRoomMsg() {
             this.axios.post('http://192.168.1.116:3000/message/message',{roomId:this.roomId})
                 .then(res => {
@@ -140,7 +154,10 @@ export default {
                         this.$store.commit('SET_TOAST', {
                             isShow: true,
                             content: '获取最近80条消息',
-                            duration: 1000,
+                            duration: 1500,
+                        })
+                        this.$nextTick(() => {
+                             this.setScroll();
                         })
                     }else {
                        this.$store.commit('SET_TOAST', {

@@ -2,17 +2,17 @@
 <transition name="fade">
   <div class="chat">
     <div class="chat-list">
-      <div v-for="(value,index) in roomId">
-        <div class="chat-room" @click="goTalk(value)">
-			<div class="chat-room-icon"></div>
+      <div v-for="(value,index) in chatList">
+        <div class="chat-room" @click="goTalk(value.roomId)">
+			<div class="chat-room-icon" :style="{backgroundImage:`url(${value.src})`}"></div>
 			<div class="chat-room-info">
-				<div class="chat-room-name">{{roomName[index]}}</div>
-				<div class="chat-room-message">{{roomMsg[value] && roomMsg[value].count ? '[' + roomMsg[value].count + ']条' : ''}}{{roomMsg && roomMsg[value] && roomMsg[value].msg ? roomMsg[value].msg : 'ddd'}}</div>
+				<div class="chat-room-name">{{value.roomName}}</div>
+				<div class="chat-room-message">{{homeMsg[value.roomId] && homeMsg[value.roomId].count ? '[' + homeMsg[value.roomId].count + '条]' : ''}}{{homeMsg[value.roomId] && homeMsg[value.roomId].nickName ? homeMsg[value.roomId].nickName + ':' : ''}}{{homeMsg && homeMsg[value.roomId] && homeMsg[value.roomId].msg ? homeMsg[value.roomId].msg : ''}}</div>
 			</div>
 			<span class="chat-room-ctrl" @click.stop="roomShowFunc(value)"></span>
         <transition name="bounce">
           <div class="chat-room-ctrl-content" v-if="roomShow == value+'true' ">
-            <div class="chat-room-clear" @click.stop="clearMsg(value)">删除消息记录</div>
+            <div class="chat-room-clear" @click.stop="clearMsg(value)">已读</div>
           </div>
         </transition>
         <div class="mask" v-if="roomShow == value+'true'" @click.stop="roomShow= '';flag = false"></div>
@@ -32,7 +32,7 @@ export default {
         roomName: ['官方聊天室1','官方聊天室2','官方聊天室3'],
         roomShow: '',
         flag: false,
-        roomMsg:{},
+        roomMsg: {},
     };
   },
   components: {
@@ -48,27 +48,35 @@ export default {
     })
   },
   watch:{
-	  roomMsg(value) {
-		console.log(value);
-	  }
+
+  },
+  computed: {
+    homeMsg() {
+      return this.$store.state.homeMsg;
+    },
+    chatList() {
+      return this.$store.state.chatList;
+    }
   },
   mounted() {
       this.socket.on('receive msg', data => {
-			let msg = data.img ? '[图片]' : data.msg;
-			if (!this.roomMsg[data.roomId]) {
-				this.roomMsg[data.roomId] = {}
-				this.roomMsg[data.roomId].count = 0;
-			}
-			this.roomMsg[data.roomId].count++;
-			this.roomMsg[data.roomId].msg = msg;
-			this.roomMsg[data.roomId].nickName = data.nickName;
+          let msg = data.img ? '[图片]' : data.msg;
+          if (!this.roomMsg[data.roomId]) {
+            this.roomMsg[data.roomId] = {}
+            this.roomMsg[data.roomId].count = 0;
+          }
+          this.roomMsg[data.roomId].count++;
+          this.roomMsg[data.roomId].msg = msg;
+          this.roomMsg[data.roomId].nickName = data.nickName;
+          this.$store.commit('SET_HOME_MSG',this.roomMsg);
        })
   },
   methods: {
     clearMsg(roomId) {
-      localStorage.removeItem(`msg_${roomId}`);
-      this.roomShow = '';
+      this.homeMsg[roomId] = {}
+      this.$store.commit('SET_HOME_MSG',this.roomMsg);
       this.flag = false;
+      this.roomShow = '';
     },
     roomShowFunc(value) {
       this.flag = !this.flag;
@@ -133,22 +141,32 @@ export default {
 	  height: 1.6rem;
 	  box-sizing: border-box;
 	  width: 1.2rem;
-	  padding: .2rem 0;
+    padding: .2rem 0;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: contain;
   }
   .chat-room-info {
 	  float: left;
-	  overflow: hidden;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: .1rem .2rem;
+    max-width: 70%;
   }
   .chat-room-name {
 	  height: .7rem;
-	  margin-left: .2rem;
 	  line-height: .7rem;
-	  font-size: .4rem;
+    font-size: .4rem;
+    color: #353535;
   }
   .chat-room-message {
-	  margin-left: .2rem;
-	  height: .9rem;
-	  line-height: .9rem;
+	  height: .7rem;
+    line-height: .7rem;
+    color: #999999;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
   }
 }
 .chat-room-ctrl {

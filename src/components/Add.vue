@@ -1,14 +1,19 @@
 <template>
 <transition name="fade">
     <div class="add">
-        <div v-for="value in list" class="list">{{value}}</div>
+        <div v-for="(value,index) in list" class="list" @click="addFunc(listEN[index])">{{value}}</div>
     </div>
 </transition>
 </template>
 <script>
   export default {
       name:'Add',
-      props:["list"],
+      props:["list","listEN"],
+      methods: {
+          addFunc(target) {
+              this.$emit('addFunc',{name:target})
+          }
+      }
   }  
 </script>
 <style lang="less" scoped>

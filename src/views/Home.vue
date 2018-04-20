@@ -1,11 +1,13 @@
 <template>
+<transition name="fade">
   <div class="home">
-      <vHeader class="home-header" msg="IM" @add="showAdd"/>
-      <vAdd class="home-add" v-if="isShowAdd" :list="list" /> 
+      <vHeader class="home-header" msg="IM" @add="showAdd" @leftFunc="findFAG"/>
+      <vAdd class="home-add" v-if="isShowAdd" :list="list" :listEN="listEN" @addFunc="addFunc"/> 
        <router-view/>
       <div class="mask" v-if="isShowAdd" @click="isShowAdd = false"></div>
       <vFooter />
   </div>
+</transition>
 </template>
 <script>
   import Header from "@/components/Header.vue";
@@ -16,7 +18,8 @@ export default {
     data() {
         return {
             isShowAdd: false,
-            list: ["在线匹配", "创建群聊"]
+            list: ["在线匹配", "创建群聊"],
+            listEN: ['find','create']
         };
     },
     components: {
@@ -28,21 +31,44 @@ export default {
         showAdd() {
             this.isShowAdd = !this.isShowAdd;
         },
+        addFunc(data) {
+            if(data.name == 'create'){
+                this.$router.push({
+                    name:'createroom'
+                })
+            }
+        },
+        findFAG() {
+            this.$router.push({
+                name:'find'
+            })
+        }
     }
 }
 </script>
 <style lang="less" scoped>
+.fade-enter-active {
+  transition: all .2s;
+}
+.fade-leave-active {
+  transition: all .2s;
+}
+.fade-enter, .fade-leave-active {
+  transform: translateX(-100%);
+  opacity: 1;
+}
+
 .home-header {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 5;
+  z-index: 10;
 }
 .home-add {
   position: fixed;
   top: 1.2rem;
   right: 0;
-  z-index: 4;
+  z-index: 9;
 }
 .mask{
   position: fixed;
@@ -50,6 +76,6 @@ export default {
   left: 0;
   height: 100%;
   width: 100%;
-  z-index: 3;
+  z-index: 8;
 }
 </style>
