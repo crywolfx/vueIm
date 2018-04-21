@@ -2,24 +2,32 @@
   <div id="app">
     <router-view/>
     <vtoast class="toast" />
+    <vLoading v-show ="isLoading"/>
   </div>
 </template>
 <script>
   import toast from '@/components/toast.vue'
+  import loading from '@/components/loading.vue'
   export default {
-  name: 'app',
-  data() {
-    return {
-      
-    };
-  },
-  components: {
-    vtoast:toast,
-  },
-  methods: {
-    
+      name: 'app',
+      data() {
+          return {
+
+          };
+      },
+      components: {
+          vtoast: toast,
+          vLoading: loading
+      },
+      computed: {
+		  isLoading() {
+			 return this.$store.state.isLoading;
+		  }
+      },
+      methods: {
+
+      },
   }
-}
 </script>
 <style lang="less">
 @import "./assets/css/reset.css";
@@ -30,12 +38,5 @@
   transform: translate(-50%,0);
   z-index: 10;
 }
-// .mask{
-//   position: fixed;
-//   top: 0;
-//   left: 0;
-//   height: 100%;
-//   width: 100%;
-//   z-index: 3;
-// }
+
 </style>

@@ -104,11 +104,13 @@ export default {
             this.isNext = false;
         },
         checkName() {
+            this.$store.commit('SET_LOADING_STATE',true);
             this.axios
                 .post("http://192.168.1.116:3000/user/checkName", {
                     userName: this.userName
                 })
                 .then(res => {
+                    this.$store.commit('SET_LOADING_STATE',false);
                     if (res.data.success) {
                         this.isNext = true;
                     } else {
@@ -137,6 +139,7 @@ export default {
             }
         },
         doReg() {
+            this.$store.commit('SET_LOADING_STATE',true);
             if (this.canReg) {
                 if (this.checkInfo()) {
                     let userInfo = {
@@ -146,14 +149,27 @@ export default {
                         nickName: this.name,
                         age: this.age
                     };
-                    this.axios.post('http://192.168.1.116:3000/user/reg', userInfo)
-                    .then(res => {
-                        if (res.data.success) {
-                            this.$router.push({
-                                name: 'login',
+                    this.axios.all([
+                        this.axios.post('http://192.168.1.116:3000/user/reg', userInfo),
+                        this.axios.post('http://192.168.1.116:3000/room/joinroom', { userName: this.userName, roomId: '0001' }),
+                        this.axios.post('http://192.168.1.116:3000/room/joinroom', { userName: this.userName, roomId: '0002' }),
+                        this.axios.post('http://192.168.1.116:3000/room/joinroom', { userName: this.userName, roomId: '0003' }),
+                    ]).then(this.axios.spread( (a,b,c,d) => {
+                        this.$store.commit('SET_LOADING_STATE',false);
+                         if(a.data.success) {
+                             this.$router.push({name:'login'});
+                         }
+                         if(b.data.success && c.data.success && d.data.success) {
+                             this.$store.commit('SET_TOAST', {
+                                isShow: true,
+                                content: '加入官方默认房间',
+                                duration: 1000,
                             })
-                        }
-                    })
+                         }else {
+                             console.error('加入官方默认房间失败');
+                         }
+                    }))
+
                 }            
             }
         }

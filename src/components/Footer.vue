@@ -41,7 +41,7 @@
     background: #FCFCFC;
     display: flex;
     border-top: 1px #D8D8D8 solid;
-    z-index: 2;
+    z-index: 10;
 }
 
 .footer-item {

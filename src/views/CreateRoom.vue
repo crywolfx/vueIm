@@ -1,12 +1,12 @@
 <template>
 <transition name="fade">
   <div class="create-room">
-      <vHeader class="header" msg="创建群聊" :image="leftImage" @leftFunc="$router.go(-1)"/>
+      <vHeader class="header" msg="创建群聊" :image="leftImage" :right="right" @leftFunc="$router.go(-1)" @add="doCreate"/>
       <div class="create-content">
           <div class="create-img" :style="{backgroundImage:`url(${ previewUrl ? previewUrl : addImg })`}"><input type="file" accept="image/*" @change="getFile"></div>
           <div class="create-input">
-              <input type="number" placeholder="请输入房间ID" v-model="roomId" @input="change()">
-              <input type="text" placeholder="请输入房间名称" v-model="roomName" @input="change()">
+              <input type="number" placeholder="请输入房间ID(4-10位数字)" v-model="roomId" @input="change()">
+              <input type="text" placeholder="请输入房间名称(4-10位)" v-model="roomName" @input="change()">
           </div>
           <div class="create-do" :class="[canCreate ? 'create-do-true' : '']" @click="doCreate">点击创建</div>
       </div>
@@ -20,6 +20,7 @@ export default {
     data() {
         return {
             leftImage: require('@/assets/image/back.svg'),
+            right: require('@/assets/image/right2.svg'),
             addImg: require('@/assets/image/create-add.svg'),
             roomId:'',
             roomName: '',
@@ -42,14 +43,14 @@ export default {
             this.previewUrl= this.getObjectURL(this.imageFiles);
         },
         change() {
-            if (this.roomId && this.roomName) {
+            if (this.roomId && this.roomName && this.roomId.length > 3 && this.roomId.length < 11 && this.roomName.length > 3 && this.roomName.length < 11) {
                 this.canCreate = true;
             } else {
                 this.canCreate = false;
             }
         },
         doCreate() {
-            if(this.canCreate){
+            if(this.canCreate && this.imageFiles){
                 this.axios.post('http://192.168.1.116:3000/room/checkname',{roomId:this.roomId})
                     .then(res => {
                         if(res.data.success){
@@ -62,6 +63,12 @@ export default {
                             })
                         }
                     })
+            }else {
+                this.$store.commit('SET_TOAST', {
+                    isShow: true,
+                    content: '请上传群聊头像',
+                    duration: 1000,
+                })
             }
         },
         uploadImg() {
@@ -82,6 +89,7 @@ export default {
                 })            
         },
         saveRoom(src) {
+            this.$store.commit('SET_LOADING_STATE',true);
             let data = {
                 roomId: this.roomId,
                 roomName: this.roomName,
@@ -91,13 +99,14 @@ export default {
             }
             this.axios.post('http://192.168.1.116:3000/room/saveroom', data)
                 .then(res => {
+                    this.$store.commit('SET_LOADING_STATE',false);
                     if (res.data.success) {
                         this.$store.commit('SET_TOAST', {
                             isShow: true,
                             content: '创建成功',
                             duration: 1000,
                         })
-                        this.$router.go(-1);
+                        this.$router.push({name:'contcats'})
                     } else {
                         this.$store.commit('SET_TOAST', {
                             isShow: true,

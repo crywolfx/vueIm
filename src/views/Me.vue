@@ -83,11 +83,13 @@ export default {
             this.previewUrl= this.getObjectURL(this.imageFiles);
         },
         imageUpload() {
+            this.$store.commit('SET_LOADING_STATE',true);
             let formData = new FormData();
             formData.append('userName', this.userInfo.userName);
             formData.append('file', this.imageFiles)
             this.axios.post('http://192.168.1.116:3000/user/upload/user', formData)
                 .then(res => {
+                  this.$store.commit('SET_LOADING_STATE',false);
                     if (res.data.success) {
                         let newUserInfo = this.userInfo;
                         newUserInfo.src = res.data.data;
@@ -110,6 +112,7 @@ export default {
         },
         logout() {
             localStorage.clear();
+            this.$store.commit('STE_CHAT_LIST' , []);
             this.$store.commit("SET_LOGIN_STATUS", false);
             this.$store.commit("SET_USER_INFO", {});
             this.$store.commit("SET_ACTIVE_TAB", 'Chat');
@@ -277,9 +280,9 @@ export default {
     text-align: center;
     line-height: 1rem;
     font-size: .4rem;
-	position: absolute;
-	z-index: 2;
-	top: 1rem;
+	  position: absolute;
+	  z-index: 2;
+	  top: 1rem;
   }
   .image-upload-input{
     display: block;
@@ -288,8 +291,8 @@ export default {
     opacity: 0;
     position: absolute;
     top: 0;
-	left: 0;
-	z-index: 1;
+	  left: 0;
+	  z-index: 1;
   }
   .image-upload-preview {
 	  top: 0;

@@ -2,7 +2,7 @@
  <div class="header" ref="headerBox">
    <div class="left" :style="{backgroundImage:`url(${image})`}" @click="leftFunc()"></div>
    <div class="center">{{msg}}</div>
-   <div class="right" @click="add()"></div>
+   <div class="right" :style="{backgroundImage:`url(${right})`}" @click="add()"></div>
  </div>  
 </template>
 <script>
@@ -19,6 +19,11 @@ export default {
         image: {
             default: () => {
                 return require('@/assets/image/search.svg')
+            }
+        },
+        right: {
+            default: () => {
+                return require('@/assets/image/add.svg')
             }
         }
     },
@@ -41,6 +46,7 @@ export default {
   width: 100%;
   background: #36ADD1;
   color: #ffffff;
+  z-index: 10;
   div {
     float: left;
   }
@@ -64,7 +70,10 @@ export default {
   height: 100%;
   text-align: center;
   line-height: 1.2rem;
-  font-size: .5rem;
+  font-size: .4rem;
+  overflow: hidden;
+  text-overflow:ellipsis; 
+  white-space: nowrap;
 }
 
 </style>

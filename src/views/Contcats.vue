@@ -29,10 +29,21 @@ export default {
             return this.$store.state.userInfo
         }
     },
+    beforeRouteEnter: (to, from, next) => {
+        let nameArr = to.name.split('');
+        nameArr[0] = nameArr[0].toUpperCase();
+        let name = nameArr.join('');
+        next(vm => {
+            vm.$store.commit('SET_ACTIVE_TAB', name);
+            localStorage.setItem('activeTab', name);
+        })
+    },
     methods: {
         getFriendList() {
+        this.$store.commit('SET_LOADING_STATE',true);
             this.axios.post('http://192.168.1.116:3000/room/findlist', {userName:this.userInfo.userName})
                 .then( res => {
+                    this.$store.commit('SET_LOADING_STATE',false);
                     if(res.data.success){
                         this.groupList = res.data.list;
                     }

@@ -10,6 +10,7 @@ import Contcats from './views/Contcats.vue'
 import Home from './views/Home.vue'
 import CreateRoom from './views/CreateRoom.vue' 
 import Find from './views/Find.vue' 
+import Faginfo from './views/Faginfo.vue' 
 
 Vue.use(Router)
 
@@ -57,6 +58,14 @@ const router =  new Router({
         }]
     },
     {
+      path: '/find',
+      name: 'find',
+      component: Find,
+      meta: {
+        requireAuth: true, 
+      },
+    },
+    {
       path: '/createroom',
       name: 'createroom',
       component: CreateRoom,
@@ -65,9 +74,9 @@ const router =  new Router({
       },
     },  
     {
-      path: '/find',
-      name: 'find',
-      component: Find,
+      path: '/faginfo',
+      name: 'faginfo',
+      component: Faginfo,
       meta: {
         requireAuth: true, 
       },

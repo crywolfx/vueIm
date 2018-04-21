@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer'); //接收图片
 const Room = require('../schemas/room');
+const Message = require('../schemas/message');
 // 房间是否注册
 router.post('/checkname', (req, res) => {
     Room.findOne({
@@ -59,7 +60,7 @@ router.post('/saveroom', function(req, res, next) {
 router.post('/joinroom', function(req, res, next) {
     let userName = req.body.userName;
     let roomId = req.body.roomId;
-    changeMumber(roomId, { member : userName },'push')
+    changeMember(roomId, { member : userName },'push')
         .then( result => {
             res.json({
                 success: true,
@@ -78,7 +79,7 @@ router.post('/joinroom', function(req, res, next) {
 router.post('/leaveroom', function(req, res, next) {
     let userName = req.body.userName;
     let roomId = req.body.roomId;
-    changeMumber(roomId, { member : userName },'pull')
+    changeMember(roomId, { member : userName },'pull')
     .then( result => {
         res.json({
             success: true,
@@ -108,9 +109,18 @@ router.post('/delroom', function(req, res, next) {
                             msg:'解散群组失败'
                         })
                     } else {
-                        res.json({
-                            success:true,
-                            msg:'解散群组成功'
+                        Message.remove({roomId : roomId}, (error) => {
+                            if(error) {
+                                res.json({
+                                    success: false,
+                                    msg: '解散群组成功但删除聊天记录失败'
+                                })
+                            }else {
+                                res.json({
+                                    success:true,
+                                    msg:'解散群组成功'
+                                })
+                            }
                         })
                     }
                 })
@@ -140,7 +150,7 @@ router.post('/roomInfo', function(req, res, next) {
 })
 
 // 更新群组成员
-function changeMumber(roomId,newDoc,type) {
+function changeMember(roomId,newDoc,type) {
     return new Promise( (resolve,reject) => {
         let conditions = { roomId: roomId };
         let updates = {};

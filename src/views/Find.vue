@@ -1,6 +1,7 @@
 <template>
+<transition name="trans">
   <div class="find">
-       <vHeader class="header" msg="IM" :image="leftImage" @leftFunc="$router.go(-1)"/>
+       <vHeader class="header" msg="IM" :image="leftImage" :right="right" @leftFunc="$router.go(-1)"/>
        <div class="find-content">
            <div class="find-input-box">
                <div class="find-input-content">
@@ -13,13 +14,9 @@
                     <div class="find-type-content" @click="findGroup">找群: <span>{{findId}}</span> </div>
                 </div>        
            </transition>
-           <transition name="fade">
-           <div class="find-result" v-show="haveResult">
-                <div class="group-title"><div><span class="group-title-image" :style="{backgroundImage:`url(${value.src})`}"></span><span>{{value.roomName}}</span><span class="group-join" @click="addToChat(value.roomId)">{{isMember ? '已在群中，点击进入' : '加入群聊'}}</span></div></div>               
-           </div>
-            </transition>
        </div>
   </div>
+</transition>
 </template>
 <script>
 import Header from "@/components/Header.vue";
@@ -28,16 +25,12 @@ export default {
     data() {
         return {
             leftImage: require('@/assets/image/back.svg'),
+            right: require('@/assets/image/00.png'),
             findId:'',
-            value:{},
-            haveResult: false,
-            isMember: false,
         }
     },
     watch: {
-        findId(val){
-            this.haveResult = false;
-        }
+
     },
     computed: {
         userInfo() {
@@ -49,55 +42,26 @@ export default {
     },
     methods: {
         findGroup() {
-            this.axios.post('http://192.168.1.116:3000/room/roomInfo',{roomId:this.findId})
-                .then(res => {
-                    if(res.data.success){
-                        this.value = res.data.roomInfo;
-                        let memberList = res.data.roomInfo.member;
-                        for(let i = 0 ; i < memberList.length ; i++) {
-                            if(memberList[i] == this.userInfo.userName){
-                                this.isMember = true;
-                            }
-                        }
-                        this.haveResult = true;
-                    }
-                })
-        },
-        addToChat(roomId) {
-            if(this.isMember){
-                this.$router.push({
-                    name:'chating',
-                    params: { roomid: roomId }
-                })            
-            }else {
-                this.axios.post('http://192.168.1.116:3000/room/joinroom', {
-                    userName: this.userInfo.userName,
-                    roomId: roomId
-                }).then( res => {
-                    if(res.data.success) {
-                        this.$store.commit('SET_TOAST', {
-                            isShow: true,
-                            content: '加入群聊成功',
-                            duration: 1000,
-                        })
-                        this.$router.push({
-                            name:'chating',
-                            params: { roomid: roomId }
-                        })  
-                    }else {
-                        this.$store.commit('SET_TOAST', {
-                            isShow: true,
-                            content: '不知道什么原因,加入失败 -_-',
-                            duration: 1000,
-                        })
-                    }
-                })
-            }
+            this.$router.push({
+                name:'faginfo',
+                query: { group: this.findId }
+            })
         }
     }
 }
 </script>
 <style lang="less" scoped>
+.trans-enter-active {
+  transition: all .2s;
+}
+.trans-leave-active {
+  transition: all .2s;
+}
+.trans-enter, .trans-leave-active {
+  transform: translateX(100%);
+  opacity: 1;
+}
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s;
 }

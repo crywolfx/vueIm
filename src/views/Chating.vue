@@ -1,9 +1,11 @@
 <template>
 <transition name="fade">
   <div class="chating">
-      <vHeader class="chat-header" :msg="`${roomInfo.roomName ? roomInfo.roomName : 'IM'}(当前在线${userListLen}人)`" :image="leftImage" @leftFunc="isLeave = true" @getHeader="getHeader"/>
-      <div class="message-box-outer" ref="messageBoxOut">
-         <div class="message-box" ref="messageBox">
+      <vHeader class="chat-header" :msg="`${roomInfo.roomName ? roomInfo.roomName : 'IM'}(在线${userListLen}人)`" :image="leftImage" @leftFunc="isLeave = true" @getHeader="getHeader" @add="showAdd"/>
+        <vAdd class="chat-add" v-if="isShowAdd" :list="list" :listEN="listEN" @addFunc="addFunc"/> 
+      <div class="message-box-outer" ref="messageBoxOut" style="-webkit-overflow-scrolling:touch">
+         <div class="message-box" ref="messageBox" style="-webkit-overflow-scrolling:touch">
+          <div>
           <div v-for="obj in messageList">
               <div v-if="obj.type == 1">
                   <div class="message-jlmsg">{{obj.data.jlMsg}}</div>
@@ -32,6 +34,7 @@
                   </div>
               </div>
           </div>
+          </div>
       </div>
       </div>
       <div class="input-box" ref="footerBox">
@@ -44,7 +47,7 @@
       <transition name="slide-fade">
       <div class="leave-room" v-if="isLeave">
           <span></span>
-          <div @click="$router.go(-1)">返回并在主页接收消息</div>
+          <div @click="$router.push({ name:'chat'})">返回并在主页接收消息</div>
           <div @click="doBack">离开房间</div>
       </div>
       </transition>
@@ -56,10 +59,12 @@
 </template>
 <script>
 import Header from "@/components/Header.vue";
+import Add from "@/components/Add.vue";
 export default {
     name: 'chating',
     data() {
         return {
+            isShowAdd: false,
             msgContent: '',
             haveMsg: false, // 是否发送成功
             roomId: 'default_1',
@@ -70,11 +75,14 @@ export default {
             input: /^[\s]*$/,
             isLeave: false,
             roomInfo: {},
-            defaultImg: require('../assets/image/avatar.jpg')
+            defaultImg: require('../assets/image/avatar.jpg'),
+            list: ["查看信息"],
+            listEN: ['info']
         }
     },
     components: {
         vHeader: Header,
+        vAdd: Add
     },
     watch: {
         msgContent(val) {
@@ -113,23 +121,51 @@ export default {
         },
         homeMsg() {
             return this.$store.state.homeMsg;
+        },
+        chatList() {
+            return this.$store.state.chatList;
         }
     },
     methods: {
+        showAdd() {
+            this.isShowAdd = !this.isShowAdd;
+        },
+        addFunc(data) {
+            if(data.name == 'info'){
+                this.$router.push({
+                    name:'faginfo',
+                    query: { group: this.roomId }
+                })
+            }
+        },
         getRoomInfo() {
             this.axios.post('http://192.168.1.116:3000/room/roomInfo',{roomId:this.roomId})
                 .then(res => {
                     if(res.data.success){
                         this.roomInfo = res.data.roomInfo;
-                        this.$store.commit('STE_CHAT_LIST',this.roomInfo);                  
+                        let chatList = this.chatList;
+                        let flag = true;
+                        for (let i = 0; i < chatList.length; i++) {
+                            if (chatList[i].roomId == this.roomInfo.roomId) {
+                                flag = false;
+                                break;
+                            }
+                        }
+                        if (flag) {
+                            chatList.push(this.roomInfo);
+                            this.$store.commit('STE_CHAT_LIST',chatList);  
+                            localStorage.setItem('chatList', JSON.stringify(chatList));
+                        }                
                     }else {
                         console.error("获取房间信息失败");
                     }
             })
         },
         getRoomMsg() {
+            this.$store.commit('SET_LOADING_STATE',true);
             this.axios.post('http://192.168.1.116:3000/message/message',{roomId:this.roomId})
                 .then(res => {
+                    this.$store.commit('SET_LOADING_STATE',false);
                     if(res.data.success) {
                         let messageList = res.data.data;
                         let newMessageList = [];
@@ -290,7 +326,9 @@ export default {
         },
         doBack() {
             this.socket.emit('leave-room', this.userAroom);
-            this.$router.go(-1);
+            this.$router.push({
+                name:'chat'
+            });
         },
         getTime() {
             let date = new Date();
@@ -363,6 +401,13 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 10;
+}
+.chat-add {
+  position: fixed;
+  top: 1.2rem;
+  right: 0;
+  z-index: 9;
 }
 .chating {
     position: absolute;
@@ -376,6 +421,7 @@ export default {
     width: 100%;
     padding: 1.2rem 0;
     box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
 }
 .message-box {
     height: 100%;
@@ -384,6 +430,7 @@ export default {
     background: #F1F2F7;
     box-sizing: border-box;
     overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
     .message-jlmsg{
         width: 100%;
         text-align: center;
@@ -414,6 +461,8 @@ export default {
             max-width: 60%;
         }
         .message-other-username{
+            height: .5rem;
+            line-height: .5rem;
             overflow: hidden;
             color: #ADADAD;
             font-size: .3rem;
