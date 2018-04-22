@@ -87,7 +87,7 @@ export default {
             let formData = new FormData();
             formData.append('userName', this.userInfo.userName);
             formData.append('file', this.imageFiles)
-            this.axios.post('http://192.168.1.116:3000/user/upload/user', formData)
+            this.axios.post(this.api.userUpload(), formData)
                 .then(res => {
                   this.$store.commit('SET_LOADING_STATE',false);
                     if (res.data.success) {

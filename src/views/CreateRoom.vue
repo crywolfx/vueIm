@@ -51,7 +51,7 @@ export default {
         },
         doCreate() {
             if(this.canCreate && this.imageFiles){
-                this.axios.post('http://192.168.1.116:3000/room/checkname',{roomId:this.roomId})
+                this.axios.post(this.api.checkRoomName(),{roomId:this.roomId})
                     .then(res => {
                         if(res.data.success){
                             this.uploadImg();
@@ -75,7 +75,7 @@ export default {
             let formData = new FormData();
             formData.append('roomId', this.roomId);
             formData.append('file', this.imageFiles)
-            this.axios.post('http://192.168.1.116:3000/room/upload/room', formData)
+            this.axios.post(this.api.roomUpload(), formData)
                 .then(res => {
                     if (res.data.success) {
                         this.saveRoom(res.data.data)
@@ -97,7 +97,7 @@ export default {
                 src: src,
                 member: [this.userInfo.userName]
             }
-            this.axios.post('http://192.168.1.116:3000/room/saveroom', data)
+            this.axios.post(this.api.saveRoom(), data)
                 .then(res => {
                     this.$store.commit('SET_LOADING_STATE',false);
                     if (res.data.success) {

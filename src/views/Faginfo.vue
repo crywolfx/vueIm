@@ -121,7 +121,7 @@ export default {
         getGroupInfo(roomId) {
             this.$store.commit('SET_LOADING_STATE',true);
             this.roomId = roomId;
-            this.axios.post('http://192.168.1.116:3000/room/roomInfo', {
+            this.axios.post(this.api.roomInfo(), {
                     roomId: roomId
                 })
                 .then(res => {
@@ -144,7 +144,7 @@ export default {
         },
         joinRoom(roomId) {
                 this.$store.commit('SET_LOADING_STATE',true);
-                this.axios.post('http://192.168.1.116:3000/room/joinroom', {
+                this.axios.post(this.api.joinRoom(), {
                     userName: this.userInfo.userName,
                     roomId: roomId
                 }).then( res => {
@@ -170,7 +170,7 @@ export default {
         },
         delroom(roomId) {
             this.$store.commit('SET_LOADING_STATE',true);
-            this.axios.post('http://192.168.1.116:3000/room/delroom',{
+            this.axios.post(this.api.delRoom(),{
                 userName: this.userInfo.userName,
                 roomId: roomId
             }).then( res=> {
@@ -197,7 +197,7 @@ export default {
         },
         leaveRoom(roomId) {
             this.$store.commit('SET_LOADING_STATE',true);
-            this.axios.post('http://192.168.1.116:3000/room/leaveroom',{
+            this.axios.post(this.api.leaveRoom(),{
                 userName: this.userInfo.userName,
                 roomId: roomId
             }).then( res=> {

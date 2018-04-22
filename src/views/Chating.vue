@@ -139,7 +139,7 @@ export default {
             }
         },
         getRoomInfo() {
-            this.axios.post('http://192.168.1.116:3000/room/roomInfo',{roomId:this.roomId})
+            this.axios.post(this.api.roomInfo(),{roomId:this.roomId})
                 .then(res => {
                     if(res.data.success){
                         this.roomInfo = res.data.roomInfo;
@@ -163,7 +163,7 @@ export default {
         },
         getRoomMsg() {
             this.$store.commit('SET_LOADING_STATE',true);
-            this.axios.post('http://192.168.1.116:3000/message/message',{roomId:this.roomId})
+            this.axios.post(this.api.getMessage(),{roomId:this.roomId})
                 .then(res => {
                     this.$store.commit('SET_LOADING_STATE',false);
                     if(res.data.success) {
@@ -273,7 +273,7 @@ export default {
                 formData.append('msgType', 'msg');
                 formData.append('file', imageFiles);
 
-            this.axios.post('http://192.168.1.116:3000/user/upload/msg', formData)
+            this.axios.post(this.api.msgUpload(), formData)
                 .then(res => {
                     if (res.data.success) {
                         url = res.data.data;

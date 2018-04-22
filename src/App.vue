@@ -20,9 +20,9 @@
           vLoading: loading
       },
       computed: {
-		  isLoading() {
-			 return this.$store.state.isLoading;
-		  }
+        isLoading() {
+          return this.$store.state.isLoading;
+        }
       },
       methods: {
 

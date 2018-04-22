@@ -128,6 +128,22 @@
     }
     ```
 ### ROOM 房间相关
+- #### /room/findlist  已加入群组列表
+
+    ```
+    接受:
+    body: {
+
+        userName:   (String)    // 用户名
+
+    }
+
+    返回: 
+    body:{
+        success:    (Boolean) 
+        list:     (Array)
+    }
+    ```
 - #### /room/checkname  检查群组id是否被注册
 
     ```
@@ -198,7 +214,7 @@
         msg:   (String)
     }
     ```
-- #### /room/leaveroom  退出群组
+- #### /room/delroom  退出群组
 
     ```
     接受:

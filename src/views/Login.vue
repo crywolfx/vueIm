@@ -43,7 +43,7 @@ export default {
                 userName: this.userName,
                 password: this.password
               }
-              this.axios.post('http://192.168.1.116:3000/user/login', userInfo)
+              this.axios.post(this.api.login(), userInfo)
                   .then(res => {
                     this.$store.commit('SET_LOADING_STATE',false);
                       if (res.data.success) {

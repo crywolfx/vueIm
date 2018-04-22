@@ -41,7 +41,7 @@ export default {
     methods: {
         getFriendList() {
         this.$store.commit('SET_LOADING_STATE',true);
-            this.axios.post('http://192.168.1.116:3000/room/findlist', {userName:this.userInfo.userName})
+            this.axios.post(this.api.findList(), {userName:this.userInfo.userName})
                 .then( res => {
                     this.$store.commit('SET_LOADING_STATE',false);
                     if(res.data.success){

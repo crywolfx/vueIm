@@ -6,10 +6,12 @@ import './registerServiceWorker'
 import 'lib-flexible/flexible.js'
 import axios from './http/index'
 import io from 'socket.io-client'
+import api from './api/index'
 
 Vue.config.productionTip = false
 Vue.prototype.axios = axios
-const socket = io('http://192.168.1.116:3000');
+Vue.prototype.api = api
+const socket = io(api.socket());
 
 Vue.prototype.socket = socket;
 new Vue({

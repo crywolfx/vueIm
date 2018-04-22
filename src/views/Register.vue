@@ -106,7 +106,7 @@ export default {
         checkName() {
             this.$store.commit('SET_LOADING_STATE',true);
             this.axios
-                .post("http://192.168.1.116:3000/user/checkName", {
+                .post(this.api.checkUserName(), {
                     userName: this.userName
                 })
                 .then(res => {
@@ -150,10 +150,10 @@ export default {
                         age: this.age
                     };
                     this.axios.all([
-                        this.axios.post('http://192.168.1.116:3000/user/reg', userInfo),
-                        this.axios.post('http://192.168.1.116:3000/room/joinroom', { userName: this.userName, roomId: '0001' }),
-                        this.axios.post('http://192.168.1.116:3000/room/joinroom', { userName: this.userName, roomId: '0002' }),
-                        this.axios.post('http://192.168.1.116:3000/room/joinroom', { userName: this.userName, roomId: '0003' }),
+                        this.axios.post(this.api.reg(), userInfo),
+                        this.axios.post(this.api.joinRoom(), { userName: this.userName, roomId: '0001' }),
+                        this.axios.post(this.api.joinRoom(), { userName: this.userName, roomId: '0002' }),
+                        this.axios.post(this.api.joinRoom(), { userName: this.userName, roomId: '0003' }),
                     ]).then(this.axios.spread( (a,b,c,d) => {
                         this.$store.commit('SET_LOADING_STATE',false);
                          if(a.data.success) {
