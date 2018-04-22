@@ -14,7 +14,7 @@ export default {
         return `${_baseUrl}/user/upload/user`
     },
     msgUpload() {
-        return `${_baseUrl}/user/msg`
+        return `${_baseUrl}/user/upload/msg`
     },
     getMessage() {
         return `${_baseUrl}/message/message`
