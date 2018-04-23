@@ -52,14 +52,23 @@
       </div>
       </transition>
        <transition name="slide-fade">
-      <div class="leave-mask" v-if="isLeave" @click="isLeave = false"></div>
+      <div class="leave-mask" v-if="isLeave || disconnect || reconnect" @click="isLeave = false"></div>
        </transition>
+       <div class="disconnect" v-if="disconnect">
+            <div class="title">糟糕，网络中断，请检查网络</div> 
+            <div class="do" @click="disconnect = false">我知道了</div>      
+       </div>
+        <div class="connect" v-if="reconnect && !disconnect">
+            <div class="loading"><vLoading /></div>  
+            <div class="title">正在重连</div> 
+       </div>
   </div>
 </transition>
 </template>
 <script>
 import Header from "@/components/Header.vue";
 import Add from "@/components/Add.vue";
+import Loading from "@/components/loading2.vue";
 export default {
     name: 'chating',
     data() {
@@ -77,12 +86,15 @@ export default {
             roomInfo: {},
             defaultImg: require('../assets/image/avatar.jpg'),
             list: ["查看信息"],
-            listEN: ['info']
+            listEN: ['info'],
+            disconnect: false,
+            reconnect: false,
         }
     },
     components: {
         vHeader: Header,
-        vAdd: Add
+        vAdd: Add,
+        vLoading: Loading
     },
     watch: {
         msgContent(val) {
@@ -113,6 +125,15 @@ export default {
         })
         this.socket.on('receive msg', data => {
             this.setMsgList(data);
+        })
+        this.socket.on('disconnect', () => {
+            this.disconnect = true;
+        })
+        this.socket.on('reconnecting', () => {
+            this.reconnect = true;
+        })
+        this.socket.on('reconnect', () => {
+            this.reconnect = false;
         })
     },
     computed: {
@@ -401,7 +422,7 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 10;
+    z-index: 7 !important;
 }
 .chat-add {
   position: fixed;
@@ -607,5 +628,56 @@ export default {
     height: 100%;
     width: 100%;
     background:rgba(115, 115, 115, .8);
+}
+.disconnect {
+    box-sizing: border-box;
+    padding: .4rem;
+    height: 3rem;
+    width: 6rem;
+    background: #ffffff;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    border-radius: .2rem;
+    z-index: 9;
+    .title {
+        height: 1.1rem;
+        line-height: 1.1rem;
+        width: 100%;
+        font-size: .4rem;
+        color: #3f3f3f;
+    }
+    .do {
+        height: 1.1rem;
+        line-height: 1.1rem;
+        width: 100%;
+        text-align: right;
+        font-size: .4rem;
+        color: #FC4241;
+    }
+}
+.connect {
+    height: 4rem;
+    width: 4rem;
+    background: rgba(53, 53, 53, 0.527);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    text-align: center;
+    border-radius: .5rem;
+    z-index: 9;
+    .title {
+        height: 1.1rem;
+        line-height: 1.1rem;
+        color:#fff;
+    }
+    .loading {
+        position: absolute;
+        top: 1.1rem;
+        left: 50%;
+        transform: translateX(-50%);
+    }
 }
 </style>
